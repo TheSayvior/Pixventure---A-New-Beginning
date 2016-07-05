@@ -1,45 +1,53 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterController : MonoBehaviour {
+public class CharacterControl : MonoBehaviour {
 
     private float speed_max = 0.01f;
-    public Animator Ani;
-
+    public Animator HeadAnimationControl;
+    public Animator ChestAnimationControl;
+    public Animator LegsAnimationControl;
+    
     private GenerateGrass GrassGenerator;
+
+    private string AniHead, AniChest, AniLegs = "";
     // Use this for initialization
     void Start() {
         GrassGenerator = GameObject.FindGameObjectWithTag("TerrainGenerator").GetComponent<GenerateGrass>();
         GrassGenerator.generateGrassTile(0, 0);
         GrassGenerator.GenerateField(0, 0);
-        Ani.Play("StandingDown");
+        HeadAnimationControl.Play("Head_Down");
+        ChestAnimationControl.Play("Chest_Left");
     }
 
     // Update is called once per frame
     void FixedUpdate() {
         int gridX = (int)Mathf.Round(this.gameObject.transform.position.x);
         int gridY = (int)Mathf.Round(this.gameObject.transform.position.z);
-        string animation = "";
         int dirX = 0, dirY = 0;
         if (Input.GetKey("up") || Input.GetKey(KeyCode.W))
         {
-            animation = "MovingUp";
+            AniHead = "Head_Up";
+            AniChest = "Chest_Right";
             dirY += 1;
         }
         if (Input.GetKey("down") || Input.GetKey(KeyCode.S))
         {
-            animation = "MovingDown";
+            AniHead = "Head_Down";
+            AniChest = "Chest_Left";
             dirY -= 1;
         }
         if (Input.GetKey("left") || Input.GetKey(KeyCode.A))
         {
-            animation = "MovingLeft";
+            AniHead = "Head_Left";
+            AniChest = "Chest_Left";
             dirX -= 1;
         }
 
         if (Input.GetKey("right") || Input.GetKey(KeyCode.D))
         {
-            animation = "MovingRight";
+            AniHead = "Head_Right";
+            AniChest = "Chest_Right";
             dirX += 1;
         }
         float velX = 0, velY = 0;
@@ -50,13 +58,17 @@ public class CharacterController : MonoBehaviour {
             float s = 1 / v;
             velX = dirX * s * speed_max;
             velY = dirY * s * speed_max;
-            Ani.SetBool("Stopped", false);
+            LegsAnimationControl.SetBool("Stopped", false);
             this.gameObject.transform.position += new Vector3(velX, 0, velY);
-            Ani.Play(animation);
-        } else
-        {
-            Ani.SetBool("Stopped", true);
+
+            HeadAnimationControl.Play(AniHead);
+            ChestAnimationControl.Play(AniChest);
         }
+        else
+        {
+            LegsAnimationControl.SetBool("Stopped", true);
+        }
+        
 
         int newGridX = (int)Mathf.Round(this.gameObject.transform.position.x);
         int newGridY = (int)Mathf.Round(this.gameObject.transform.position.z);
